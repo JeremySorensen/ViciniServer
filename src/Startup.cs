@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ViciniServer.Sessions;
+using ViciniServer.WebSockets;
 
 namespace ViciniServer
 {
@@ -32,7 +34,7 @@ namespace ViciniServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -45,6 +47,8 @@ namespace ViciniServer
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseWebSockets();
+            app.Map("/session", (a) => a.UseMiddleware<WebSocketSessionMiddleware>());
         }
     }
 }

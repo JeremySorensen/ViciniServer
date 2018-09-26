@@ -10,12 +10,12 @@ using ViciniServer.Sessions;
 
 namespace ViciniServer.WebSockets {
 
-    public class WebSocketMiddleware {
+    public class WebSocketSessionMiddleware {
         private readonly RequestDelegate next;
 
         private ISessionManager sessionManager;
 
-        public WebSocketMiddleware(RequestDelegate next, ISessionManager sessionManager) {
+        public WebSocketSessionMiddleware(RequestDelegate next, ISessionManager sessionManager) {
             this.next = next;
             this.sessionManager = sessionManager;
         }
@@ -31,6 +31,8 @@ namespace ViciniServer.WebSockets {
             var socketSender = new SocketSender(socket);
 
             var sid = sessionManager.CreateSession(socketSender);
+
+            await socketSender.SendTextAsync("session", sid.ToString());
 
             await Receive(socket, async(result, hid, buffer) => {
                 if (result.MessageType == WebSocketMessageType.Text) {
